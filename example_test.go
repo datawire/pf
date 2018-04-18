@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/go-freebsd/pf"
+	"github.com/datawire/pf"
 )
 
 func ExampleStats() {

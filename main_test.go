@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-freebsd/kld"
+	"github.com/datawire/kld"
 )
 
 var pfh *Handle
