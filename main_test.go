@@ -5,24 +5,14 @@ import (
 	"log"
 	"os"
 	"testing"
-
-	"github.com/datawire/kld"
 )
 
 var pfh *Handle
 
 func TestMain(m *testing.M) {
 	var err error
-
-	// Load kernel module if not already loaded
-	if ok, _ := kld.Loaded("pf"); !ok {
-		err := kld.Load("pf")
-		if err != nil {
-			log.Fatalf("Unable to load pf kernel module", err)
-		}
-	}
-
 	pfh, err = Open()
+	log.Println(pfh)
 	if err != nil {
 		log.Fatalf("Failed to run tests (are you root?): %s", err)
 	}
