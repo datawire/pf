@@ -1,14 +1,9 @@
-test: pf.test
-	@-sudo pfctl -F all 2> /dev/null
-	sudo ./pf.test -test.v -test.coverprofile=coverage.out
-	@-sudo pfctl -F all 2> /dev/null
-
-pf.test: *.go
-	go test -o pf.test -cover -c -v github.com/datawire/pf
+test: *.go
+	-sudo pfctl -F all
+	-sudo pfctl -a asd -F all
+	-go test -exec sudo -cover -v github.com/datawire/pf
+	-sudo pfctl -F all
+	-sudo pfctl -a asd -F all
 
 cover: coverage.out
 	go tool cover -html=coverage.out -o coverage.html
-
-clean:
-	@-rm -f pf.test
-
