@@ -9,6 +9,7 @@ import (
 
 // #include <net/if.h>
 // #include <net/pfvar.h>
+// #include "helpers.h"
 import "C"
 
 // ParseSource sets the source ip (inet and inet6) based on the
@@ -59,7 +60,7 @@ func parseAddress(addr *C.struct_pf_rule_addr, address string, negative bool) er
 func parsePort(addr *C.struct_pf_rule_addr, port string) error {
 	s := scanner.Scanner{}
 	s.Init(strings.NewReader(port))
-	addr.port_op = C.PF_OP_NONE
+	C.set_addr_port_op(addr, C.PF_OP_NONE)
 
 	var tok rune
 	curPort := 0
@@ -80,52 +81,52 @@ func parsePort(addr *C.struct_pf_rule_addr, port string) error {
 				return fmt.Errorf("Port number can't be negative: %d", val)
 			}
 
-			addr.port[curPort] = C.u_int16_t(C.htons(C.uint16_t(val)))
+			C.set_addr_port(addr, C.int(curPort), C.u_int16_t(C.htons_f(C.uint16_t(val))))
 			curPort++
 
 			// if it is the first number and after there is nothing, set none
 		case ':':
-			addr.port_op = C.PF_OP_RRG
+			C.set_addr_port_op(addr, C.PF_OP_RRG)
 		case '!':
 			if curPort != 0 {
 				return fmt.Errorf("Unexpected number before '!'")
 			}
 			if s.Peek() == '=' {
 				s.Next() // consume
-				addr.port_op = C.PF_OP_NE
+				C.set_addr_port_op(addr, C.PF_OP_NE)
 			} else {
 				return fmt.Errorf("Expected '=' after '!'")
 			}
 		case '<':
 			if s.Peek() == '>' {
 				s.Next() // consume
-				addr.port_op = C.PF_OP_XRG
+				C.set_addr_port_op(addr, C.PF_OP_XRG)
 			} else if s.Peek() == '=' {
 				s.Next() // consume
-				addr.port_op = C.PF_OP_LE
+				C.set_addr_port_op(addr, C.PF_OP_LE)
 			} else if s.Peek() >= '0' && s.Peek() <= '9' { // int
 				// next is port number continue
-				addr.port_op = C.PF_OP_LT
+				C.set_addr_port_op(addr, C.PF_OP_LT)
 			} else {
 				return fmt.Errorf("Expected port number not '%c'", s.Peek())
 			}
 		case '>':
 			if s.Peek() == '<' {
 				s.Next() // consume
-				addr.port_op = C.PF_OP_IRG
+				C.set_addr_port_op(addr, C.PF_OP_IRG)
 			} else if s.Peek() == '=' {
 				s.Next() // consume
-				addr.port_op = C.PF_OP_GE
+				C.set_addr_port_op(addr, C.PF_OP_GE)
 			} else if s.Peek() >= '0' && s.Peek() <= '9' { // int
 				// next is port number continue
-				addr.port_op = C.PF_OP_GT
+				C.set_addr_port_op(addr, C.PF_OP_GT)
 			} else {
 				return fmt.Errorf("Expected port number not '%c'", s.Peek())
 			}
 		case -1:
 			// if no operation was set
-			if curPort == 1 && addr.port_op == C.PF_OP_NONE { // one port
-				addr.port_op = C.PF_OP_EQ
+			if curPort == 1 && C.get_addr_port_op(addr) == C.PF_OP_NONE { // one port
+				C.set_addr_port_op(addr, C.PF_OP_EQ)
 			}
 		default:
 			return fmt.Errorf("Unexpected char '%c'", s.Peek())

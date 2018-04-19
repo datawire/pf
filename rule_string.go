@@ -8,6 +8,7 @@ import (
 // #include <sys/ioctl.h>
 // #include <net/if.h>
 // #include <net/pfvar.h>
+// #include "helpers.h"
 import "C"
 
 // String returns the rule as pf.conf representation
@@ -59,9 +60,9 @@ func addressDump(dump []string, addr *C.struct_pf_rule_addr, af C.sa_family_t) [
 
 // portRangeDump returns the pf.conf representation of the port range
 func portRangeDump(dump []string, addr *C.struct_pf_rule_addr) []string {
-	startPort := uint16(C.ntohs(C.uint16_t(addr.port[0])))
-	endPort := uint16(C.ntohs(C.uint16_t(addr.port[1])))
-	operation := uint8(addr.port_op)
+	startPort := uint16(C.ntohs_f(C.get_addr_port(addr, 0)))
+	endPort := uint16(C.ntohs_f(C.get_addr_port(addr, 1)))
+	operation := uint8(C.get_addr_port_op(addr))
 
 	if startPort == 0 && endPort == 0 {
 		return dump

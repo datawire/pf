@@ -172,9 +172,12 @@ func (s Statistics) ReasonSynProxy() uint64 {
 }
 
 // ReasonMapFailed num pf_map_addr() failed
+// Does not exist on Darwin:
+/*
 func (s Statistics) ReasonMapFailed() uint64 {
 	return uint64(s.wrap.counters[C.PFRES_MAPFAILED])
 }
+*/
 
 /* Counters for other things we want to keep track of */
 
@@ -267,7 +270,7 @@ func (s Statistics) String() string {
 		{"state-limit", s.ReasonMaxStates()},
 		{"src-limit", s.ReasonSourceLimit()},
 		{"synproxy", s.ReasonSynProxy()},
-		{"map-failed", s.ReasonMapFailed()},
+// Does not exist on Darwin: //		{"map-failed", s.ReasonMapFailed()},
 
 		{"max-states-per-rule", s.CounterStates()},
 		{"max-src-states", s.CounterSrcStates()},

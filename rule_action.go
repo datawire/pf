@@ -41,7 +41,7 @@ const (
 	ActionSynProxyDrop Action = C.PF_SYNPROXY_DROP
 
 	// ActionDefer TODO is this divert?
-	ActionDefer Action = C.PF_DEFER
+	// Does not exist on Darwin: // ActionDefer Action = C.PF_DEFER
 )
 
 func (a Action) String() string {
@@ -68,8 +68,10 @@ func (a Action) String() string {
 		return "no rdr"
 	case ActionSynProxyDrop:
 		return "synproxy drop"
-	case ActionDefer:
+// Does not exist on Darwin:
+/*	case ActionDefer:
 		return "defer"
+*/
 	default:
 		return fmt.Sprintf("Action(%d)", a)
 	}
