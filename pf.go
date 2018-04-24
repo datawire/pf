@@ -6,9 +6,11 @@ import (
 	"unsafe"
 )
 
+// #include <arpa/inet.h>
 // #include <sys/ioctl.h>
 // #include <net/if.h>
 // #include <net/pfvar.h>
+// #include "helpers.h"
 import "C"
 
 // Handle to the pf kernel module using ioctl
@@ -27,6 +29,39 @@ func Open() (*Handle, error) {
 		Anchor: Anchor{ioctlDev: dev, Path: ""},
 	}
 	return h, nil
+}
+
+func (h Handle) NatLook(saddr string, sport int, daddr string, dport int) (addr string, port int, err error) {
+	var pnl C.struct_pfioc_natlook
+	pnl.af = C.AF_INET
+	pnl.proto = C.u_int8_t(6) // tcp
+	pnl.proto_variant = C.u_int8_t(0)
+	pnl.direction = C.PF_OUT
+	cerr := C.inet_pton(C.int(pnl.af), C.CString(saddr), unsafe.Pointer(&pnl.saddr))
+	if cerr != 1 {
+		err = fmt.Errorf("inet_pton: %d", 1)
+		return
+	}
+	cerr = C.inet_pton(C.int(pnl.af), C.CString(daddr), unsafe.Pointer(&pnl.daddr))
+	if cerr != 1 {
+		err = fmt.Errorf("inet_pton: %d", 1)
+		return
+	}
+	C.set_natlook_sport(&pnl, C.htons_f(C.u_int16_t(sport)))
+	C.set_natlook_dport(&pnl, C.htons_f(C.u_int16_t(dport)))
+
+	err = h.ioctl(C.DIOCNATLOOK, unsafe.Pointer(&pnl))
+	if err != nil { return }
+
+	var dst C.struct_pton_addr
+	caddr := C.inet_ntop(C.int(pnl.af), unsafe.Pointer(&pnl.rdaddr), C.get_pton_addr(&dst), C.INET_ADDRSTRLEN)
+	if caddr == nil {
+		err = fmt.Errorf("inet_ntop")
+		return
+	}
+	addr = C.GoString(caddr)
+	port = int(C.ntohs_f(C.get_natlook_rdport(&pnl)))
+	return
 }
 
 // SetStatusInterface sets the status interface(s) for pf
