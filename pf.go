@@ -69,7 +69,7 @@ func (h Handle) NatLook(saddr string, sport int, daddr string, dport int) (addr 
 // to be created before using interface cloning.
 func (h Handle) SetStatusInterface(dev string) error {
 	var pi C.struct_pfioc_if
-	err := cStringCopy(unsafe.Pointer(&pi.ifname), dev, C.IFNAMSIZ)
+	err := cStringCopy(&pi.ifname[0], dev, C.IFNAMSIZ)
 	if err != nil {
 		return err
 	}

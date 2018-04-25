@@ -50,7 +50,7 @@ func (rs RuleSet) Type() RuleSetType {
 
 // SetAnchor can be used to set the anchor path for the rule set
 func (rs *RuleSet) SetAnchor(path string) error {
-	return cStringCopy(unsafe.Pointer(&rs.wrap.anchor), path, int(C.MAXPATHLEN))
+	return cStringCopy(&rs.wrap.anchor[0], path, int(C.MAXPATHLEN))
 }
 
 // Anchor returns the anchor of the rule set
@@ -66,7 +66,7 @@ func (rs RuleSet) AddRule(r *Rule) error {
 	defer func() { r.wrap.ticket = 0 }()
 	r.wrap.ticket = rs.wrap.ticket
 
-	err := cStringCopy(unsafe.Pointer(&r.wrap.anchor), rs.Anchor(), int(C.MAXPATHLEN))
+	err := cStringCopy(&r.wrap.anchor[0], rs.Anchor(), int(C.MAXPATHLEN))
 	if err != nil {
 		return fmt.Errorf("cStringCopy: %s", err)
 	}

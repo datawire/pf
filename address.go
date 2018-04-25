@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"strings"
-	"unsafe"
 )
 
 // #include <net/if.h>
@@ -91,7 +90,7 @@ func (a Address) Interface() string {
 // SetInterface turns address into dynamic interface reference,
 // type of interface reference can be changed with flags
 func (a *Address) SetInterface(itf string) error {
-	err := cStringCopy(unsafe.Pointer(&a.wrap.v), itf, C.IFNAMSIZ)
+	err := bytesCopy(a.wrap.v[:], itf, C.IFNAMSIZ)
 	if err != nil {
 		return err
 	}
@@ -126,7 +125,7 @@ func (a Address) TableName() string {
 
 // SetTableName turns address into table reference, using given name
 func (a *Address) SetTableName(name string) error {
-	err := cStringCopy(unsafe.Pointer(&a.wrap.v), name, C.PF_TABLE_NAME_SIZE)
+	err := bytesCopy(a.wrap.v[:], name, C.PF_TABLE_NAME_SIZE)
 	if err != nil {
 		return err
 	}
