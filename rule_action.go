@@ -79,8 +79,14 @@ func (a Action) String() string {
 
 func (a Action) AnchorString() string {
 	switch a {
-	case ActionPass:
-		return "all"
+	case ActionPass, ActionDrop, ActionScrub, ActionNoScrub:
+		return "anchor"
+	case ActionNAT, ActionNoNAT:
+		return "nat-anchor"
+	case ActionBINAT, ActionNoBINAT:
+		return "binat-anchor"
+	case ActionRDR, ActionNoRDR:
+		return "rdr-anchor"
 	default:
 		return fmt.Sprintf("AnchorString(%d)", a)
 	}

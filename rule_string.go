@@ -16,9 +16,9 @@ func (r Rule) String() string {
 	var dump []string
 
 	if ac := r.AnchorCall(); ac != "" {
-		dump = append(dump, fmt.Sprintf("anchor %s", r.AnchorCall()))
-
 		dump = append(dump, r.Action().AnchorString())
+		dump = append(dump, r.AnchorCall())
+		dump = append(dump, "all")
 		return strings.Join(dump, " ")
 	}
 
