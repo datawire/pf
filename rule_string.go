@@ -15,6 +15,13 @@ import "C"
 func (r Rule) String() string {
 	var dump []string
 
+	if ac := r.AnchorCall(); ac != "" {
+		dump = append(dump, fmt.Sprintf("anchor %s", r.AnchorCall()))
+
+		dump = append(dump, r.Action().AnchorString())
+		return strings.Join(dump, " ")
+	}
+
 	dump = append(dump, r.Action().String())
 	dump = append(dump, r.Direction().String())
 

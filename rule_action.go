@@ -76,3 +76,12 @@ func (a Action) String() string {
 		return fmt.Sprintf("Action(%d)", a)
 	}
 }
+
+func (a Action) AnchorString() string {
+	switch a {
+	case ActionPass:
+		return "all"
+	default:
+		return fmt.Sprintf("AnchorString(%d)", a)
+	}
+}

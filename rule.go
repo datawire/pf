@@ -103,3 +103,15 @@ func (r *Rule) SetAddressFamily(af AddressFamily) {
 func (r Rule) AddressFamily() AddressFamily {
 	return AddressFamily(r.wrap.rule.af)
 }
+
+// AnchorCall returns the anchor name for anchor call rules
+func (r Rule) AnchorCall() string {
+	return C.GoString(&r.wrap.anchor_call[0])
+}
+
+// SetAnchorCall sets the anchor to call
+func (r *Rule) SetAnchorCall(anchor string) (err error) {
+	err = cStringCopy(&r.wrap.anchor_call[0], anchor, C.MAXPATHLEN)
+	if err != nil { return }
+	return
+}

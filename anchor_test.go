@@ -20,3 +20,42 @@ func TestAnchorRules(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Empty(t, rules)
 }
+
+func TestAnchor_AddRule_Anchors_RemoveRule(t *testing.T) {
+	var rule Rule
+	err := rule.SetAnchorCall("myanchor")
+	assert.NoError(t, err)
+	assert.Equal(t, "myanchor", rule.AnchorCall())
+
+	rules, err := pfh.Rules()
+	assert.NoError(t, err)
+	orig := len(rules)
+
+	err = pfh.AddRule(rule)
+	assert.NoError(t, err)
+
+	rules, err = pfh.Rules()
+	assert.NoError(t, err)
+
+	t.Log(rules)
+	assert.Len(t, rules, orig + 1)
+	last := rules[orig]
+	assert.Equal(t, "anchor myanchor all", last.String())
+
+	// adding an anchor call rule worked, now let's test if we can
+	// navigate to our new anchor
+	anchors, err := pfh.AnchorMap()
+	assert.NoError(t, err)
+
+	anchor, exists := anchors["/myanchor"]
+	assert.True(t, exists)
+
+	t.Log(anchors)
+	t.Log(anchor.Rules())
+
+	err = pfh.RemoveRule(last)
+	assert.NoError(t, err)
+	rules, err = pfh.Rules()
+	assert.NoError(t, err)
+	assert.Len(t, rules, orig)
+}

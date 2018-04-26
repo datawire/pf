@@ -15,7 +15,6 @@ import "C"
 type RuleSet struct {
 	tx   Transaction
 	wrap *C.struct_pfioc_trans_e
-	pool   C.struct_pfioc_pooladdr
 }
 
 // RuleSetType is the type of a given rule set
@@ -71,11 +70,8 @@ func (rs RuleSet) AddRule(r *Rule) error {
 		return fmt.Errorf("cStringCopy: %s", err)
 	}
 
-	err = rs.tx.handle.ioctl(C.DIOCBEGINADDRS, unsafe.Pointer(&rs.pool))
-	if err != nil {
-		return fmt.Errorf("DIOCBEGINADDRS: %s", err)
-	}
-	r.wrap.pool_ticket = rs.pool.ticket
+	r.wrap.pool_ticket, err = rs.tx.handle.poolTicket()
+	if err != nil { return err }
 
 	err = rs.tx.handle.ioctl(C.DIOCADDRULE, unsafe.Pointer(&r.wrap))
 	if err != nil {
