@@ -31,7 +31,7 @@ func TestRuleSetRollback(t *testing.T) {
 	err = tx.Rollback()
 	assert.NoError(t, err)
 
-	rules, err := pfh.Rules()
+	rules, err := pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 	assert.Len(t, rules, 0)
 }
@@ -62,7 +62,7 @@ func TestAddRuleAndRule(t *testing.T) {
 	err = tx.Commit()
 	assert.NoError(t, err)
 
-	rules, err := pfh.Rules()
+	rules, err := pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 	assert.Len(t, rules, 1)
 	assert.Equal(t, "pass in log quick inet proto udp "+

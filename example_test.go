@@ -14,7 +14,7 @@ func ExampleStats() {
 	}
 	defer pfh.Close()
 
-	rules, err := pfh.Rules()
+	rules, err := pfh.Rules(pf.ActionPass)
 	if err != nil {
 		log.Fatalf("GetRules: %s\n", err)
 	}

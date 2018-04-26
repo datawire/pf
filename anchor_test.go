@@ -7,16 +7,16 @@ import (
 
 func TestAnchorRule(t *testing.T) {
 	// invalid ticket
-	assert.Error(t, pfh.rule(0, 0, nil))
+	assert.Error(t, pfh.rule(ActionPass, 0, 0, nil))
 
 	// nil rule will panic
 	assert.Panics(t, func() {
-		pfh.rule(1, 0, nil)
+		pfh.rule(ActionPass, 1, 0, nil)
 	}, "asd")
 }
 
 func TestAnchorRules(t *testing.T) {
-	rules, err := pfh.Rules()
+	rules, err := pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 	assert.Empty(t, rules)
 }
@@ -27,14 +27,14 @@ func TestAnchor_AddRule_Anchors_RemoveRule(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "myanchor", rule.AnchorCall())
 
-	rules, err := pfh.Rules()
+	rules, err := pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 	orig := len(rules)
 
 	err = pfh.AddRule(rule)
 	assert.NoError(t, err)
 
-	rules, err = pfh.Rules()
+	rules, err = pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 
 	t.Log(rules)
@@ -51,11 +51,11 @@ func TestAnchor_AddRule_Anchors_RemoveRule(t *testing.T) {
 	assert.True(t, exists)
 
 	t.Log(anchors)
-	t.Log(anchor.Rules())
+	t.Log(anchor.Rules(ActionPass))
 
 	err = pfh.RemoveRule(last)
 	assert.NoError(t, err)
-	rules, err = pfh.Rules()
+	rules, err = pfh.Rules(ActionPass)
 	assert.NoError(t, err)
 	assert.Len(t, rules, orig)
 }

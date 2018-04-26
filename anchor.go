@@ -18,8 +18,9 @@ type Anchor struct {
 }
 
 // Rules returns all rules using one ticket
-func (a Anchor) Rules() ([]Rule, error) {
+func (a Anchor) Rules(action Action) ([]Rule, error) {
 	var rules C.struct_pfioc_rule
+	rules.rule.action = C.u_int8_t(action)
 	err := cStringCopy(&rules.anchor[0], a.Path, C.MAXPATHLEN)
 	if err != nil { return nil, err }
 	err = a.ioctl(C.DIOCGETRULES, unsafe.Pointer(&rules))
@@ -29,7 +30,7 @@ func (a Anchor) Rules() ([]Rule, error) {
 	ruleList := make([]Rule, rules.nr)
 
 	for i := 0; i < int(rules.nr); i++ {
-		err = a.rule(int(rules.ticket), i, &ruleList[i])
+		err = a.rule(action, int(rules.ticket), i, &ruleList[i])
 		if err != nil {
 			return nil, fmt.Errorf("DIOCGETRULE: %s", err)
 		}
@@ -39,7 +40,7 @@ func (a Anchor) Rules() ([]Rule, error) {
 }
 
 // Rule uses the passed ticket to return the rule at the given index
-func (a Anchor) rule(ticket, index int, rule *Rule) error {
+func (a Anchor) rule(action Action, ticket, index int, rule *Rule) error {
 	if ticket <= 0 || index < 0 {
 		return fmt.Errorf("Invalid ticket or index: ticket %d index %d",
 			ticket, index)
@@ -47,6 +48,7 @@ func (a Anchor) rule(ticket, index int, rule *Rule) error {
 	if rule == nil {
 		panic(fmt.Errorf("Can't store rule data in nil value"))
 	}
+	rule.wrap.rule.action = C.u_int8_t(action)
 	err := cStringCopy(&rule.wrap.anchor[0], a.Path, C.MAXPATHLEN)
 	if err != nil { return err }
 	rule.wrap.nr = C.u_int32_t(index)
