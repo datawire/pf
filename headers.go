@@ -7,37 +7,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"regexp"
-	"runtime"
 )
-
-var re = regexp.MustCompile("root:xnu-([0-9.]+)")
-
-func GetKernelVersion() (result string, err error) {
-	cmd := exec.Command("uname", "-v")
-	out, err := cmd.CombinedOutput()
-	if err != nil { return }
-	matches := re.FindSubmatch(out)
-	if len(matches) < 2 {
-		err = fmt.Errorf("cannot find version in uname output: %s", out)
-		return
-	}
-	result = string(matches[1])
-	return 
-}
-
-func Exists(name string) (bool, error) {
-	_, err := os.Stat(name)
-	if err == nil {
-		return true, nil
-	} else if os.IsNotExist(err) {
-		return false, nil
-	} else {
-		return false, err
-	}
-}
 
 type Header struct {
 	Base string
@@ -46,14 +17,13 @@ type Header struct {
 }
 
 func (h *Header) Fetch(version string) (err error) {
-	if exists, err := Exists(h.Name); exists || err != nil {
-		return err
-	}
-
 	url := fmt.Sprintf("https://opensource.apple.com/source/xnu/xnu-%s/%s%s", version, h.Base, h.Name)
 	r, err := http.Get(url)
 	if err != nil { return }
 	defer r.Body.Close()
+	if r.StatusCode != 200 {
+		return fmt.Errorf("error fetching %s for %s: %s", h.Name, version, r.Status)
+	}
 	bytes, err := ioutil.ReadAll(r.Body)
 	if err != nil { return }
 
@@ -71,14 +41,12 @@ func (h *Header) Fetch(version string) (err error) {
 }
 
 func doit() (err error) {
-	if runtime.GOOS != "darwin" {
-		return fmt.Errorf("This package will only work on Darwin.")
-	}
+	// For now we just vendor in the headers. If apple makes a
+	// binary incompatible change at some point in the future we
+	// may need a more dynamic strategy.
+	version := "3789.70.16"
 
-	version, err := GetKernelVersion()
-	if err != nil { return }
-
-	fmt.Printf("Fetching headers for %s, %s.\n", runtime.GOOS, version)
+	fmt.Printf("Fetching headers for xnu-%s.\n", version)
 
 	for _, hdr := range []Header {
 		{"bsd/", "net/pfvar.h", "#define PRIVATE\n\n"},
