@@ -1,4 +1,7 @@
-test: *.go
+get:
+	go get
+
+test: *.go get
 	scripts/test.sh
 
 cover: coverage.out
