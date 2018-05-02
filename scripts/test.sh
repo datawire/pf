@@ -5,6 +5,7 @@ clean() {
     sudo pfctl -F all || true
     sudo pfctl -a asd -F all || true
     sudo pfctl -a myanchor -F all || true
+    sudo pfctl -d || true
 }
 
 
