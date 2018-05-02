@@ -1,5 +1,5 @@
 get:
-	go get
+	go get -t -d
 
 test: *.go get
 	scripts/test.sh
