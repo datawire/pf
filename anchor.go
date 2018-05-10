@@ -96,7 +96,7 @@ func (a Anchor) poolTicket() (ticket C.u_int32_t, err error) {
 	return
 }
 
-func (a Anchor) AddRule(r Rule) (err error) {
+func (a Anchor) _addRule(r Rule, action C.uint) (err error) {
 	err = cStringCopy(&r.wrap.anchor[0], a.Path, C.MAXPATHLEN)
 	if err != nil { return }
 
@@ -106,10 +106,18 @@ func (a Anchor) AddRule(r Rule) (err error) {
 	r.wrap.action = C.PF_CHANGE_GET_TICKET
 	err = a.ioctl(C.DIOCCHANGERULE, unsafe.Pointer(&r.wrap))
 	if err != nil { return }
-	r.wrap.action = C.PF_CHANGE_ADD_TAIL
+	r.wrap.action = action
 	err = a.ioctl(C.DIOCCHANGERULE, unsafe.Pointer(&r.wrap))
 	if err != nil { return }
 	return
+}
+
+func (a Anchor) PrependRule(r Rule) (err error) {
+	return a._addRule(r, C.PF_CHANGE_ADD_HEAD)
+}
+
+func (a Anchor) AppendRule(r Rule) (err error) {
+	return a._addRule(r, C.PF_CHANGE_ADD_TAIL)
 }
 
 func (a Anchor) RemoveRule(r Rule) (err error) {

@@ -21,7 +21,7 @@ func TestAnchorRules(t *testing.T) {
 	assert.Empty(t, rules)
 }
 
-func TestAnchor_AddRule_Anchors_RemoveRule(t *testing.T) {
+func TestAnchor_AppendRule_Anchors_RemoveRule(t *testing.T) {
 	var rule Rule
 	err := rule.SetAnchorCall("myanchor")
 	assert.NoError(t, err)
@@ -31,7 +31,7 @@ func TestAnchor_AddRule_Anchors_RemoveRule(t *testing.T) {
 	assert.NoError(t, err)
 	orig := len(rules)
 
-	err = pfh.AddRule(rule)
+	err = pfh.AppendRule(rule)
 	assert.NoError(t, err)
 
 	rules, err = pfh.Rules(ActionPass)
